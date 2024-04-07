@@ -3,7 +3,8 @@ package config
 import "os"
 
 type Config struct {
-	Port string
+	Port             string
+	VideoServiceAddr string
 }
 
 func LoadConfig() *Config {
@@ -13,6 +14,7 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Port: port,
+		Port:             port,
+		VideoServiceAddr: os.Getenv("VIDEO_SERVICE_ADDR"),
 	}
 }
