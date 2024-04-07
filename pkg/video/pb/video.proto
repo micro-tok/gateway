@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package video;
+
+option go_package = "./pkg/video/videopb";
+
+service VideoService {
+    rpc UploadVideo (UploadVideoRequest) returns (UploadVideoResponse) {}
+    rpc GetVideoMetadata (GetVideoMetadataRequest) returns (GetVideoMetadataResponse) {}
+}
+  
+  message UploadVideoRequest {
+    bytes video = 1;
+    string title = 2;
+    string description = 3;
+    repeated string tags = 4; // Optional, if you want to include tags
+  }
+  
+  message UploadVideoResponse {
+    string id = 1;
+    string url = 2;
+  }
+  
+  message GetVideoMetadataRequest {
+    string id = 1;
+  }
+  
+  message GetVideoMetadataResponse {
+    string id = 1;
+    string ownerId = 2;
+    string title = 3;
+    string description = 4;
+    string url = 5;
+    repeated string tags = 6; // Optional
+  }
