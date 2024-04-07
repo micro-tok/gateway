@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/micro-tok/gateway/pkg/config"
+	"github.com/micro-tok/gateway/pkg/video"
 	"github.com/rs/cors"
 )
 
@@ -21,6 +22,8 @@ func main() {
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
 		AllowCredentials: true,
 	})
+
+	video.RegisterRouter(r, cfg)
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
