@@ -8,7 +8,7 @@ import (
 	videopb "github.com/micro-tok/gateway/pkg/video/pb"
 )
 
-func UploadVideo(w http.ResponseWriter, r *http.Request, c videopb.VideoServiceClient) {
+func UploadVideo(w http.ResponseWriter, r *http.Request, c videopb.VideoServiceClient, userId string) {
 	uploadVideoRequest := &videopb.UploadVideoRequest{}
 
 	file, _, err := r.FormFile("video")

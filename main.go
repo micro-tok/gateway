@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/micro-tok/gateway/pkg/auth"
 	"github.com/micro-tok/gateway/pkg/config"
 	"github.com/micro-tok/gateway/pkg/video"
 	"github.com/rs/cors"
@@ -23,7 +24,9 @@ func main() {
 		AllowCredentials: true,
 	})
 
-	video.RegisterRouter(r, cfg)
+	authSvc := auth.RegisterRouter(r, cfg)
+
+	video.RegisterRouter(r, cfg, authSvc.AuthClient)
 
 	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
