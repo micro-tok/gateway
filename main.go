@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/micro-tok/gateway/pkg/auth"
 	"github.com/micro-tok/gateway/pkg/config"
 	"github.com/micro-tok/gateway/pkg/video"
 	"github.com/rs/cors"
@@ -22,6 +23,8 @@ func main() {
 		AllowedHeaders:   []string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization"},
 		AllowCredentials: true,
 	})
+
+	authSvc := auth.RegisterRouter(r, cfg)
 
 	video.RegisterRouter(r, cfg)
 
