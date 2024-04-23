@@ -4,11 +4,13 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/micro-tok/gateway/pkg/auth"
+	authpb "github.com/micro-tok/gateway/pkg/auth/pb"
 	"github.com/micro-tok/gateway/pkg/config"
 	"github.com/micro-tok/gateway/pkg/video/routes"
 )
 
-func RegisterRouter(r *mux.Router, cfg *config.Config) *ServiceClient {
+func RegisterRouter(r *mux.Router, cfg *config.Config, authClient authpb.AuthServiceClient) *ServiceClient {
 	client, err := InitServiceClient(cfg)
 	if err != nil {
 		panic(err)
@@ -25,7 +27,11 @@ func RegisterRouter(r *mux.Router, cfg *config.Config) *ServiceClient {
 }
 
 func (svc *ServiceClient) UploadVideo(writer http.ResponseWriter, request *http.Request) {
-	routes.UploadVideo(writer, request, svc.VideoClient)
+	userId, err := auth.ValidateToken(writer, request, svc.AuthClient)
+	if err != nil {
+		return
+	}
+	routes.UploadVideo(writer, request, svc.VideoClient, userId)
 }
 
 func (svc *ServiceClient) GetVideoMetadata(writer http.ResponseWriter, request *http.Request) {
