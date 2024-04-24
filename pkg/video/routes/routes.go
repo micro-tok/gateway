@@ -28,6 +28,7 @@ func UploadVideo(w http.ResponseWriter, r *http.Request, c videopb.VideoServiceC
 	uploadVideoRequest.Title = r.FormValue("title")
 	uploadVideoRequest.Description = r.FormValue("description")
 	uploadVideoRequest.Tags = append(uploadVideoRequest.Tags, r.Form["tags"]...)
+	uploadVideoRequest.OwnerId = userId
 
 	res, err := c.UploadVideo(r.Context(), uploadVideoRequest)
 	if err != nil {

@@ -26,11 +26,13 @@ func InitServiceClient(cfg *config.Config) (authpb.AuthServiceClient, error) {
 }
 
 func ValidateToken(w http.ResponseWriter, r *http.Request, c authpb.AuthServiceClient) (string, error) {
-	token := r.Header.Get("Authorization")
-	if token == "" {
+	auth := r.Header.Get("Authorization")
+	if auth == "" {
 		http.Error(w, "No token provided", http.StatusUnauthorized)
 		return "", errors.New("no token provided")
 	}
+
+	token := auth[7:]
 
 	validateRequest := &authpb.ValidateUserRequest{
 		Token: token,
@@ -42,6 +44,5 @@ func ValidateToken(w http.ResponseWriter, r *http.Request, c authpb.AuthServiceC
 		return "", err
 	}
 
-	w.WriteHeader(http.StatusOK)
 	return res.UserUuid, nil
 }
