@@ -18,6 +18,7 @@ func RegisterRouter(r *mux.Router, cfg *config.Config, authClient authpb.AuthSer
 
 	svc := &ServiceClient{
 		VideoClient: client,
+		AuthClient:  authClient,
 	}
 
 	r.HandleFunc("/upload", svc.UploadVideo).Methods(http.MethodPost)
