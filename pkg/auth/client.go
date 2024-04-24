@@ -46,3 +46,16 @@ func ValidateToken(w http.ResponseWriter, r *http.Request, c authpb.AuthServiceC
 
 	return res.UserUuid, nil
 }
+
+func GetTags(w http.ResponseWriter, r *http.Request, c authpb.AuthServiceClient) ([]string, error) {
+	getMyInterestsRequest := &authpb.GetMyInterestsRequest{
+		Token: r.Header.Get("Authorization"),
+	}
+
+	res, err := c.GetMyInterests(r.Context(), getMyInterestsRequest)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Interests, nil
+}
