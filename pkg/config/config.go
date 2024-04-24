@@ -7,6 +7,7 @@ type Config struct {
 	VideoServiceAddr        string
 	AuthServiceAddr         string
 	NotificationServiceAddr string
+	DiscoverServiceAddr     string
 }
 
 func LoadConfig() *Config {
@@ -20,5 +21,6 @@ func LoadConfig() *Config {
 		VideoServiceAddr:        os.Getenv("VIDEO_SERVICE_ADDR"),
 		AuthServiceAddr:         os.Getenv("AUTH_SERVICE_ADDR"),
 		NotificationServiceAddr: os.Getenv("NOTIFICATION_SERVICE_ADDR"),
+		DiscoverServiceAddr:     os.Getenv("DISCOVER_SERVICE_ADDR"),
 	}
 }
