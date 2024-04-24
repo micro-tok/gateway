@@ -101,8 +101,16 @@ func ValidateUser(next http.HandlerFunc, c authpb.AuthServiceClient) http.Handle
 }
 
 func GetMe(w http.ResponseWriter, r *http.Request, c authpb.AuthServiceClient) {
+	auth := r.Header.Get("Authorization")
+	if auth == "" {
+		http.Error(w, "No token provided", http.StatusUnauthorized)
+		return
+	}
+
+	token := auth[7:]
+
 	getMeRequest := &authpb.GetMeRequest{
-		Token: r.Header.Get("Authorization"),
+		Token: token,
 	}
 
 	res, err := c.GetMe(r.Context(), getMeRequest)
