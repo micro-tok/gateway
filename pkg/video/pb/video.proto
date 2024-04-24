@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package video;
 
-option go_package = "./pkg/pb";
+option go_package = "github.com/micro-tok/gateway/pkg/video/videopb";
 
 service VideoService {
     rpc UploadVideo (UploadVideoRequest) returns (UploadVideoResponse) {}
