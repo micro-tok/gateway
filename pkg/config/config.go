@@ -8,6 +8,7 @@ type Config struct {
 	AuthServiceAddr         string
 	NotificationServiceAddr string
 	DiscoverServiceAddr     string
+	InteractionServiceAddr  string
 }
 
 func LoadConfig() *Config {
@@ -22,5 +23,6 @@ func LoadConfig() *Config {
 		AuthServiceAddr:         os.Getenv("AUTH_SERVICE_ADDR"),
 		NotificationServiceAddr: os.Getenv("NOTIFICATION_SERVICE_ADDR"),
 		DiscoverServiceAddr:     os.Getenv("DISCOVER_SERVICE_ADDR"),
+		InteractionServiceAddr:  os.Getenv("INTERACTION_SERVICE_ADDR"),
 	}
 }
