@@ -3,9 +3,10 @@ package config
 import "os"
 
 type Config struct {
-	Port             string
-	VideoServiceAddr string
-	AuthServiceAddr  string
+	Port                    string
+	VideoServiceAddr        string
+	AuthServiceAddr         string
+	NotificationServiceAddr string
 }
 
 func LoadConfig() *Config {
@@ -15,8 +16,9 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		Port:             port,
-		VideoServiceAddr: os.Getenv("VIDEO_SERVICE_ADDR"),
-		AuthServiceAddr:  os.Getenv("AUTH_SERVICE_ADDR"),
+		Port:                    port,
+		VideoServiceAddr:        os.Getenv("VIDEO_SERVICE_ADDR"),
+		AuthServiceAddr:         os.Getenv("AUTH_SERVICE_ADDR"),
+		NotificationServiceAddr: os.Getenv("NOTIFICATION_SERVICE_ADDR"),
 	}
 }
