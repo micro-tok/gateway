@@ -1,0 +1,377 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:latest
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-service
+spec:
+  selector:
+    app: redis
+  ports:
+    - protocol: TCP
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cassandra-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cassandra
+  template:
+    metadata:
+      labels:
+        app: cassandra
+    spec:
+      containers:
+      - name: cassandra
+        image: cassandra:latest
+        ports:
+        - containerPort: 9042
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cassandra-service
+spec:
+  selector:
+    app: cassandra
+  ports:
+    - protocol: TCP
+      port: 9042
+      targetPort: 9042
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kafka-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: apache/kafka:3.7.0
+        ports:
+        - containerPort: 9092
+        resources:
+          limits:
+            cpu: "1"
+            memory: "2Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka-service
+spec:
+  selector:
+    app: kafka
+  ports:
+    - protocol: TCP
+      port: 9092
+      targetPort: 9092
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: video-service-env
+data:
+  # Add environment variables here as key-value pairs
+  BUCKET_KEY: ""
+  BUCKET_SECRET: ""
+  BUCKET_NAME: "micro-tok"
+  CASSANDRA_CLUSTER_IP: "cassandra:9042"
+  CASSANDRA_KEYSPACE: "video_service"
+  SERVICE_PORT: "50003"
+  REDIS_ADDR: "redis:6379"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: video-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: video-service
+  template:
+    metadata:
+      labels:
+        app: video-service
+    spec:
+      containers:
+      - name: video-service
+        image: video-service:latest
+        ports:
+        - containerPort: 50003
+        envFrom:
+        - configMapRef:
+            name: video-service-env
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: video-service-service
+spec:
+  selector:
+    app: video-service
+  ports:
+    - protocol: TCP
+      port: 50003
+      targetPort: 50003
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auth-service-env
+data:
+  # Add environment variables here as key-value pairs
+  DATABASE_URL: ""
+  JWT_SECRET: ""
+  JWT_REFRESH_SECRET: ""
+  JWT_REFRESH_EXPIRES_IN: "7d"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auth-service-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: auth-service
+  template:
+    metadata:
+      labels:
+        app: auth-service
+    spec:
+      containers:
+      - name: auth-service
+        image: auth-service:latest
+        ports:
+        - containerPort: 50001
+        envFrom:
+        - configMapRef:
+            name: auth-service-env
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+          requests:
+            cpu: "250m"
+            memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auth-service-service
+spec:
+  selector:
+    app: auth-service
+  ports:
+    - protocol: TCP
+      port: 50001
+      targetPort: 50001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: discover-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50004
+      targetPort: 50004
+  selector:
+    app: discover-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: discover-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: discover-service
+  template:
+    metadata:
+      labels:
+        app: discover-service
+    spec:
+      containers:
+        - name: discover-service
+          image: techxtt/discover-service:latest
+          ports:
+            - containerPort: 50004
+          env:
+            - name: CASSANDRA_CLUSTER_IP
+              value: "cassandra:9042"
+            - name: CASSANDRA_KEYSPACE
+              value: "video_service"
+            - name: SERVICE_PORT
+              value: "50004"
+            - name: REDIS_ADDR
+              value: "redis:6379"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 50005
+      targetPort: 50005
+  selector:
+    app: notification-service
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: notification-service:latest
+          ports:
+            - containerPort: 50005
+          env:
+            - name: REDIS_URL
+              value: "redis:6379"
+            - name: REDIS_USERNAME
+              value: ""
+            - name: REDIS_PASSWORD
+              value: ""
+            - name: REDIS_NAME
+              value: "notification-service"
+            - name: REDIS_DATABASE
+              value: "0"
+            - name: KAFKA_URL
+              value: "kafka:9092"
+            - name: KAFKA_MECHANISM
+              value: "scram-sha-512"
+            - name: KAFKA_TOPIC
+              value: "notification-service"
+            - name: KAFKA_GROUP_ID
+              value: "notification-service"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gateway
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    app: gateway  # Ensure 'app' uses standard Latin characters
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: gateway  # Ensure 'app' uses standard Latin characters
+  template:
+    metadata:
+      labels:
+        app: gateway  # Ensure 'app' uses standard Latin characters
+    spec:
+      containers:
+        - name: gateway
+          image: techxtt/gateway:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: VIDEO_SERVICE_ADDR
+              value: "video-service:50003"
+            - name: AUTH_SERVICE_ADDR
+              value: "auth-service:50001"
+            - name: NOTIFICATION_SERVICE_ADDR
+              value: "notification-service:50005"
+            - name: DISCOVER_SERVICE_ADDR
+              value: "discover-service:50004"
+            - name: INTERACTION_SERVICE_ADDR
+              value: "interaction-service:8080"
